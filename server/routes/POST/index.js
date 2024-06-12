@@ -1,7 +1,8 @@
-const express = require('express')
+const express = require('express');
+const { Register, Login } = require('../../controller/user');
 const router = express.Router()
-router.post('/Register');
-router.post('/Login');
+router.post('/Register',Register);
+router.post('/Login',Login);
 router.post('/AddInCart');
 router.post('/AddInFavourite');
 router.post('/PaymentGateway')

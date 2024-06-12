@@ -6,20 +6,13 @@ const shoesSchema = new Schema({
     type: String,
     required: true
   },
-  image: [
-    {
-        image:{
-            type: String,
-            required: true
-        },
-        color:{
-            type:String,
-        }
-    }
-  ],
-  imageAmount:{
-    type:String,
-    default:1
+  image: {
+    type: Array,
+    default: null
+  },
+  imageAmount: {
+    type: String,
+    default: 1
   },
   sizes: [
     {
@@ -29,8 +22,14 @@ const shoesSchema = new Schema({
       },
       availableSizes: [
         {
-          type: Number,
-          required: true
+          sizes: {
+            type: [Number],
+            required: true
+          },
+          gender: {
+            type: String,
+            required: true
+          }
         }
       ]
     }
@@ -55,12 +54,16 @@ const shoesSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  quantity:{
-    type:Schema.Types.Number,
-    required:true,
-    default:0
+  quantity: {
+    type: Schema.Types.Number,
+    required: true,
+    default: 0
+  },
+  company: {
+    type: Schema.Types.String,
+    required: true
   }
 });
 
 const Shoe = mongoose.model('Shoe', shoesSchema);
-module.exports = Shoe
+module.exports = Shoe;

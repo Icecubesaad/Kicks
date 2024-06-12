@@ -1,17 +1,26 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const usersSchema = new Schema({
-  name: {
+  username: {
     type: String,
     required: true,
   },
   image:{
     type:String,
+    default:null
   },
   email: {
-    type: String,
-    required: true,
+    type: Schema.Types.String,
+    require: true,
     unique: true,
+    validate: {
+      validator: function (v) {
+        // Regular expression for validating email format
+        return /\S+@\S+\.\S+/.test(v);
+      },
+      message: (props) => `${props.value} is not a valid email address!`,
+    },
+    index: {unique: true, dropDups: true}
   },
   password: {
     type: String,

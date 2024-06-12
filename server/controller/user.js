@@ -1,15 +1,17 @@
-const User = require("../models/User");
+const User = require("../models/users");
+const bcrypt = require("bcryptjs")
+const jsonwebtoken = require('jsonwebtoken')
 const Register = async (req, res) => {
   try {
+    console.log('hehe')
     const body = req.body;
     const salt = await bcrypt.genSalt(10);
-    const hashed_password = await bcrypt.hash(body.Password, salt);
-    const imageURL = req.file.path;
+    const hashed_password = await bcrypt.hash(body.password, salt);
     const user_created = await User.create({
-      email: body.Email,
+      email: body.email,
       password: hashed_password,
-      username: body.Username,
-      image: imageURL,
+      username: body.username,
+      image: body.image,
     });
     if (user_created) {
       res.status(200).json({ success: true });
@@ -21,11 +23,11 @@ const Register = async (req, res) => {
 const Login = async (req, res) => {
   try {
     const body = req.body;
-    const requested_account = await User.findOne({ Email: body.Email });
+    const requested_account = await User.findOne({ email: body.email });
     if (requested_account) {
       const compare = await bcrypt.compare(
-        body.Password,
-        requested_account.Password
+        body.password,
+        requested_account.password
       );
       if (compare) {
         const token = jsonwebtoken.sign(
@@ -34,7 +36,7 @@ const Login = async (req, res) => {
           { expiresIn: "24h" }
         );
         res.cookie("token", token, { maxAge: 86400000 });
-        res.status(200).json({ success: true, data: requested_account });
+        res.status(200).json({ success: true, data: requested_account, token:token });
       } else {
         res.status(400).json({
           message: "Login and Password arent correct",
@@ -42,9 +44,7 @@ const Login = async (req, res) => {
         });
       }
     } else {
-      res
-        .status(400)
-        .json({ message: "Login and Password arent correct", success: false });
+      res.status(400).json({ message: "Login and Password arent correct", success: false });
     }
   } catch (error) {
     res.status(400).json({ message: error, success: false });
