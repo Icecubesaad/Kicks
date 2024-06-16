@@ -3,6 +3,8 @@ let colors={
     white:"#FFFFFF",
     black:"#151515",
     gray:"#272728",
-    blue:"#0000FF"
+    blue:"#0000FF",
+    red:"#FF0000",
+    blueCard:"#6495ED"
 }
 export default colors;

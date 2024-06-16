@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs")
 const jsonwebtoken = require('jsonwebtoken')
 const Register = async (req, res) => {
   try {
-    console.log('hehe')
     const body = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashed_password = await bcrypt.hash(body.password, salt);
@@ -39,15 +38,15 @@ const Login = async (req, res) => {
         res.status(200).json({ success: true, data: requested_account, token:token });
       } else {
         res.status(400).json({
-          message: "Login and Password arent correct",
+          error: "Login and Password arent correct",
           success: false,
         });
       }
     } else {
-      res.status(400).json({ message: "Login and Password arent correct", success: false });
+      res.status(400).json({ error: "Login and Password arent correct", success: false });
     }
   } catch (error) {
-    res.status(400).json({ message: error, success: false });
+    res.status(400).json({ error: error, success: false });
   }
 };
 const getuser = async (req, res) => {

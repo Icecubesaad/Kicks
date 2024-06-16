@@ -7,7 +7,6 @@ import {
 } from "@expo-google-fonts/montserrat";
 import { useFonts } from "@expo-google-fonts/montserrat";
 import { Image } from "react-native";
-
 function FirstScreen({navigation}) {
   const [fontsLoaded] = useFonts({
     Montserrat_300Light,

@@ -29,7 +29,7 @@ function Register({navigation}) {
     // implement uploading image functionality
     const RegisterFunc=async()=>{
         try {
-            const request = await fetch('http://localhost:5000/api/post/Register',{
+            const request = await fetch('http://192.168.0.105:5000/api/post/Register',{
               method: 'POST',
                 headers: {
                     Accept: 'application/json',
@@ -38,16 +38,21 @@ function Register({navigation}) {
                 body: JSON.stringify(Cred),
             });
             const response = await request.json()
-            if(response.status==200){
-                navigation.navigate("Home")
+            if(request.status==200){
+              setCred({
+                email:"",
+                password:"",
+                username:"",
+                image:null
+              })
+              navigation.navigate("Login")
+              console.log(response)
             }
             else{
-                setError(true)
-                setErrorMessage(response.message)
-                console.log('failed')
+              setError(true)
+              setErrorMessage(response.error)
             }
         } catch (error) {
-          console.log(error)
             setError(true)
             setErrorMessage("Internal Server Error")
         }
