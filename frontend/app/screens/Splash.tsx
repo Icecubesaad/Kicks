@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Image } from 'react-native';
 import { ArchivoBlack_400Regular } from '@expo-google-fonts/archivo-black';
 import { useFonts, loadAsync } from 'expo-font';
@@ -8,9 +8,9 @@ import * as SplashScreen from 'expo-splash-screen';
 
 SplashScreen.preventAutoHideAsync();
 
-function Splash({navigation}) {
+function Splash({ navigation }) {
   const [appIsReady, setAppIsReady] = useState(false);
-  
+
   useEffect(() => {
     async function prepare() {
       try {
@@ -22,13 +22,13 @@ function Splash({navigation}) {
       } catch (e) {
         console.warn(e);
       } finally {
-        navigation.navigate("FirstScreen")
         setAppIsReady(true);
+        navigation.navigate("FirstScreen");
       }
     }
 
     prepare();
-  }, []);
+  }, [navigation]);
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
@@ -37,7 +37,11 @@ function Splash({navigation}) {
   }, [appIsReady]);
 
   if (!appIsReady) {
-    return null;
+    return (
+      <View style={styles.spinnerContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
   }
 
   return (
@@ -64,6 +68,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontFamily: 'ArchivoBlack_400Regular',
     color: colors.white,
+  },
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.Background,
   },
 });
 
