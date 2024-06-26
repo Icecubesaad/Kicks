@@ -2,39 +2,41 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator } from 'react-native';
 import { Image } from 'react-native';
 import { ArchivoBlack_400Regular } from '@expo-google-fonts/archivo-black';
-import { useFonts, loadAsync } from 'expo-font';
+import * as Font from 'expo-font';
 import colors from '../constants/colors';
 import * as SplashScreen from 'expo-splash-screen';
-
-SplashScreen.preventAutoHideAsync();
 
 function Splash({ navigation }) {
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
-    async function prepare() {
+    async function loadResourcesAndDataAsync() {
       try {
-        // Pre-load fonts, make any API calls you need to do here
-        await loadAsync({
+        SplashScreen.preventAutoHideAsync();
+
+        // Load fonts
+        await Font.loadAsync({
           ArchivoBlack_400Regular,
         });
+
+        // Simulate a loading delay (e.g., for an API call)
         await new Promise(resolve => setTimeout(resolve, 2000));
       } catch (e) {
         console.warn(e);
       } finally {
         setAppIsReady(true);
-        navigation.navigate("FirstScreen");
+        SplashScreen.hideAsync();
       }
     }
 
-    prepare();
-  }, [navigation]);
+    loadResourcesAndDataAsync();
+  }, []);
 
-  const onLayoutRootView = useCallback(async () => {
+  useEffect(() => {
     if (appIsReady) {
-      await SplashScreen.hideAsync();
+      navigation.navigate('FirstScreen');
     }
-  }, [appIsReady]);
+  }, [appIsReady, navigation]);
 
   if (!appIsReady) {
     return (
@@ -45,7 +47,7 @@ function Splash({ navigation }) {
   }
 
   return (
-    <View style={styles.parent} onLayout={onLayoutRootView}>
+    <View style={styles.parent}>
       <Image source={require('../../assets/logo.png')} style={styles.image} />
       <Text style={styles.text}>KICKS</Text>
     </View>

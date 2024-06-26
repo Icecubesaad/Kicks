@@ -14,6 +14,7 @@ import Cart from "./app/screens/Cart";
 import Like from "./app/screens/Like";
 import Profile from "./app/screens/Profile";
 import colors from "./app/constants/colors";
+import SingleShoe from "./app/screens/SingleShoe";
 
 // Creating Stack and Tab Navigators
 const Stack = createNativeStackNavigator();
@@ -58,11 +59,12 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={Splash} />
+        {/* <Stack.Screen name="Splash" component={Splash} />
         <Stack.Screen name="FirstScreen" component={FirstScreen} />
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Register" component={Register} /> */}
         <Stack.Screen name="Main" component={MainTabs} />
+        <Stack.Screen name="single" component={SingleShoe} />
       </Stack.Navigator>
     </NavigationContainer>
   );
