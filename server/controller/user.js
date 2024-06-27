@@ -1,6 +1,6 @@
 const User = require("../models/users");
-const bcrypt = require("bcryptjs")
-const jsonwebtoken = require('jsonwebtoken')
+const bcrypt = require("bcryptjs");
+const jsonwebtoken = require("jsonwebtoken");
 const Register = async (req, res) => {
   try {
     const body = req.body;
@@ -22,7 +22,7 @@ const Register = async (req, res) => {
 const Login = async (req, res) => {
   try {
     const body = req.body;
-    console.log("heeh")
+    console.log("heeh");
     const requested_account = await User.findOne({ email: body.email });
     if (requested_account) {
       const compare = await bcrypt.compare(
@@ -36,7 +36,9 @@ const Login = async (req, res) => {
           { expiresIn: "24h" }
         );
         res.cookie("token", token, { maxAge: 86400000 });
-        res.status(200).json({ success: true, data: requested_account, token:token });
+        res
+          .status(200)
+          .json({ success: true, data: requested_account, token: token });
       } else {
         res.status(400).json({
           error: "Login and Password arent correct",
@@ -44,7 +46,9 @@ const Login = async (req, res) => {
         });
       }
     } else {
-      res.status(400).json({ error: "Login and Password arent correct", success: false });
+      res
+        .status(400)
+        .json({ error: "Login and Password arent correct", success: false });
     }
   } catch (error) {
     res.status(400).json({ error: error, success: false });
@@ -65,10 +69,51 @@ const getuser = async (req, res) => {
 };
 const getUserCart = async (req, res) => {};
 const getUserFavourite = async (req, res) => {};
+const addInCart = async (req, res) => {
+  try {
+    const { userId, ShoeId,Color,Size,Quantity } = req.body;
+    const object = {
+      shoeId:ShoeId,
+      color:Color,
+      size:Size,
+      quantity:Quantity
+    }
+    const updated_user = await User.findOneAndUpdate(
+      { userId },
+      { $push: { cart: object } },
+      {new:true}
+    );
+    if (updated_user) {
+      res.status(200).json({ updated_user, success: true });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    res.status(400).json({ error, success: false });
+  }
+};
+const addInFavourite = async (req, res) => {
+  try {
+    const { userId, ShoeId } = req.body;
+    const updated_user = await User.findOneAndUpdate(
+      { userId },
+      { $push: { favourite: ShoeId } }
+    );
+    if (updated_user) {
+      res.status(200).json({ updated_user, success: true });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    res.status(400).json({ error, success: false });
+  }
+};
 module.exports = {
   Register,
   Login,
   getUserCart,
   getUserFavourite,
   getuser,
+  addInCart,
+  addInFavourite
 };

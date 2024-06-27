@@ -18,7 +18,7 @@ function HomeScreen({ navigation }) {
   const [skip, setSkip] = useState(0);
   const [canFetch, setCanFetch] = useState(true);
   const [region, setRegion] = useState(null);
-  const [currencyIcon, setCurrencyIcon] = useState("dollar"); // Default icon
+  const [currencyIcon, setCurrencyIcon] = useState("dollar");
 
   const fetchShoes = async () => {
     if (canFetch) {

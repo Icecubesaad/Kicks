@@ -17,6 +17,9 @@ function Showcard({ name, rating,sizes, price, image, currencyIcons, currency,id
                 setprices(e.price)
             }
         })
+        if(!prices){
+          setprices(price[0].price)
+        }
     }, []);
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
@@ -35,7 +38,8 @@ function Showcard({ name, rating,sizes, price, image, currencyIcons, currency,id
       reviews:17,
       currencyIcons,
       currency,
-      sizes
+      sizes,
+      prices
     })}} style={styles.parent}>
       <View style={{ paddingLeft: 10 }}>
         <TouchableOpacity>
@@ -63,7 +67,7 @@ function Showcard({ name, rating,sizes, price, image, currencyIcons, currency,id
       {
         prices?<Text style={styles.Text}>{prices} <FontAwesome name={currencyIcons} size={16} color="black" /></Text> 
         :
-        <Text style={styles.Text}>{price[0].price} <FontAwesome name={currencyIcons} size={16} color="black" /></Text>
+        <Text style={styles.Text}>{prices} <FontAwesome name={currencyIcons} size={16} color="black" /></Text>
       }
       </View>
     </TouchableOpacity>
