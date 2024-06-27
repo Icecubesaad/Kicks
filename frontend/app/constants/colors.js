@@ -6,6 +6,7 @@ let colors={
     blue:"#0000FF",
     red:"#FF0000",
     blueCard:"#6495ED",
-    lightGray:"#e6e5df"
+    lightGray:"#e6e5df",
+    successGreen:"#4BB543"
 }
 export default colors;

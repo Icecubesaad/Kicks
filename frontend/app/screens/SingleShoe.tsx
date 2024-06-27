@@ -1,20 +1,42 @@
-import React, { useEffect, useState,useRef } from "react";
-import { View, Image, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import {
+  View,
+  Image,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { useFonts } from "expo-font";
-import { Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import {
+  Montserrat_600SemiBold,
+  Montserrat_500Medium,
+} from "@expo-google-fonts/montserrat";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
-import FlashMessage from "react-native-flash-message";
 function SingleShoe({ route, navigation }) {
-  const [fontsLoaded] = useFonts({ Montserrat_600SemiBold });
+  const [fontsLoaded] = useFonts({
+    Montserrat_600SemiBold,
+    Montserrat_500Medium,
+  });
 
   if (!fontsLoaded) {
     return null;
   }
 
-  let { name, sizes, region, rating, reviews, image, id, prices, currencyIcons } = route.params;
+  let {
+    name,
+    sizes,
+    region,
+    rating,
+    reviews,
+    image,
+    id,
+    prices,
+    currencyIcons,
+  } = route.params;
   const [selectedColor, setSelectedColor] = useState(null);
   const [gender, setGender] = useState("male");
   const [availableSizes, setAvailableSizes] = useState(null);
@@ -25,7 +47,9 @@ function SingleShoe({ route, navigation }) {
   const [errorMessage, seterrorMessage] = useState();
   const fetchSingleShoes = async () => {
     try {
-      const request = await fetch(`http://192.168.0.104:5000/api/get/getShoeById/${id}`);
+      const request = await fetch(
+        `http://192.168.0.104:5000/api/get/getShoeById/${id}`
+      );
       const response = await request.json();
       if (response.success) {
         name = response.data.name;
@@ -49,45 +73,85 @@ function SingleShoe({ route, navigation }) {
   }, [sizes]);
 
   const handleColorSelection = (id) => {
-    setSelectedColor((prevSelectedColor) => (prevSelectedColor === id ? null : id));
+    setSelectedColor((prevSelectedColor) =>
+      prevSelectedColor === id ? null : id
+    );
   };
 
   const handleGenderSelection = (selectedGender) => {
     setGender(selectedGender);
-    setSizeIndex(selectedGender === "male" ? 0 : selectedGender === "female" ? 1 : 2);
+    setSizeIndex(
+      selectedGender === "male" ? 0 : selectedGender === "female" ? 1 : 2
+    );
   };
 
-  const renderStarIcon = (id) => selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
-  const addToCart=async()=>{
+  const renderStarIcon = (id) =>
+    selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
+  const addToCart = async () => {
     try {
-      
-      const request = await fetch(`http://192.168.0.104:5000/api/post/AddInCart/`,{
-        method:"POST",
-        body:JSON.stringify({
-          ShoeId:id,
-          UserId:"666d6bcd07457dc76de8b29c",
-          Color:selectedColor==1?"red":selectedColor==2?"black":"blue",
-          Size :selectedSize
-        }),
-        headers:{
-          Accept: 'application/json',
-          'Content-Type': 'application/json'  
+      const request = await fetch(
+        `http://192.168.0.104:5000/api/post/AddInCart/`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            ShoeId: id,
+            UserId: "666d6bcd07457dc76de8b29c",
+            Color:
+              selectedColor == 1
+                ? "red"
+                : selectedColor == 2
+                ? "black"
+                : "blue",
+            Size: selectedSize,
+          }),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
-      });
-      const response = await request.json()
-      if(response.success){
-        setsuccess(true)
-      }
-      else{
-        seterror(true)
+      );
+      const response = await request.json();
+      if (response.success) {
+        setsuccess(true);
+      } else {
+        seterror(true);
       }
     } catch (error) {
-      seterror(true)
-      seterrorMessage(error)
+      seterror(true);
+      seterrorMessage(error);
     }
-  }
+  };
   return (
     <View style={styles.container}>
+      {success ? (
+        <View
+          style={{
+            height: 60,
+            backgroundColor: colors.successGreen,
+            width: "100%",
+            display:"flex",
+            justifyContent:"center",
+            alignItems:"center"
+          }}
+        >
+          <Text style={{ color: colors.white, ...styles.message }}>
+            Item has been added into your cart
+          </Text>
+        </View>
+      ) : error ? (
+        <View
+          style={{
+            height: 60,
+            backgroundColor: colors.red,
+            width: "100%",
+            display:"flex",
+            justifyContent:"center",
+            alignItems:"center"
+          }}
+        >
+          <Text  style={{ color: colors.white, ...styles.message }}>Item has been added into your cart</Text>
+        </View>
+      ) : null}
       <View style={styles.backButtonContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back-outline" size={30} color="black" />
@@ -100,7 +164,8 @@ function SingleShoe({ route, navigation }) {
         <Text style={styles.name}>{name}</Text>
         <View style={styles.ratingContainer}>
           <Text style={styles.rating}>
-            <AntDesign name="star" color="black" size={25} />{rating} ({reviews} reviews)
+            <AntDesign name="star" color="black" size={25} />
+            {rating} ({reviews} reviews)
           </Text>
         </View>
         <View style={styles.colorSelectionContainer}>
@@ -113,8 +178,14 @@ function SingleShoe({ route, navigation }) {
                 style={[
                   styles.colorOption,
                   {
-                    backgroundColor: id === 1 ? colors.red : id === 2 ? colors.black : colors.blue,
-                    borderColor: selectedColor === id ? colors.yellow : colors.white,
+                    backgroundColor:
+                      id === 1
+                        ? colors.red
+                        : id === 2
+                        ? colors.black
+                        : colors.blue,
+                    borderColor:
+                      selectedColor === id ? colors.yellow : colors.white,
                   },
                 ]}
               >
@@ -131,55 +202,63 @@ function SingleShoe({ route, navigation }) {
               style={[
                 styles.genderOption,
                 {
-                  backgroundColor: gender === genderType ? colors.black : colors.white,
+                  backgroundColor:
+                    gender === genderType ? colors.black : colors.white,
                 },
               ]}
             >
-              <Text style={[
-                styles.genderOptionText,
-                {
-                  color: gender === genderType ? colors.white : colors.black,
-                },
-              ]}>
+              <Text
+                style={[
+                  styles.genderOptionText,
+                  {
+                    color: gender === genderType ? colors.white : colors.black,
+                  },
+                ]}
+              >
                 {genderType}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
         <ScrollView horizontal style={styles.sizeSelectionContainer}>
-          {availableSizes && availableSizes[sizeIndex].sizes.map((e) => (
-            <TouchableOpacity
-              key={e}
-              onPress={() => setSelectedSize(e)}
-              style={[
-                styles.sizeOption,
-                { backgroundColor: selectedSize === e ? colors.black : colors.white },
-              ]}
-            >
-              <Text style={{ color: selectedSize === e ? colors.white : colors.black }}>{e}</Text>
-            </TouchableOpacity>
-          ))}
+          {availableSizes &&
+            availableSizes[sizeIndex].sizes.map((e) => (
+              <TouchableOpacity
+                key={e}
+                onPress={() => setSelectedSize(e)}
+                style={[
+                  styles.sizeOption,
+                  {
+                    backgroundColor:
+                      selectedSize === e ? colors.black : colors.white,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: selectedSize === e ? colors.white : colors.black,
+                  }}
+                >
+                  {e}
+                </Text>
+              </TouchableOpacity>
+            ))}
         </ScrollView>
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>
-            Price : {prices} <FontAwesome name={currencyIcons} size={16} color="black" />
+            Price : {prices}{" "}
+            <FontAwesome name={currencyIcons} size={16} color="black" />
           </Text>
         </View>
         <View style={styles.cartInfoContainer}>
-          <Text style={styles.cartInfoText}>117 people have this item in their cart</Text>
+          <Text style={styles.cartInfoText}>
+            117 people have this item in their cart
+          </Text>
         </View>
         <TouchableOpacity onPress={addToCart} style={styles.addToCartButton}>
           <Text style={styles.addToCartButtonText}>Add in cart</Text>
         </TouchableOpacity>
       </ScrollView>
-      {
-        success?
-        <View style={{position:"absolute",top:0,height:"auto",padding:15,backgroundColor:colors.gray}}>
-          <Text>Item has been added into your cart</Text>
-        </View>:error?<View style={{position:"absolute",top:0,height:"auto",padding:15,backgroundColor:colors.red}}>
-          <Text>Item has been added into your cart</Text>
-        </View>:null
-      }
     </View>
   );
 }
@@ -206,6 +285,10 @@ const styles = StyleSheet.create({
   name: {
     fontFamily: "Montserrat_600SemiBold",
     fontSize: 20,
+  },
+  message: {
+    fontFamily: "Montserrat_500Medium",
+    fontSize: 16,
   },
   ratingContainer: {
     marginTop: 10,
