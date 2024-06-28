@@ -59,6 +59,10 @@ const usersSchema = new Schema({
         ref: "Shoe",
         required: true,
       },
+      color:{
+        type:String,
+        required:true,
+      },
       size: {
         type: Number,
         required: true,

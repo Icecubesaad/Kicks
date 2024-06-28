@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Image,
@@ -6,8 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator
 } from "react-native";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { useFonts } from "expo-font";
 import {
@@ -16,35 +17,20 @@ import {
 } from "@expo-google-fonts/montserrat";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
+
 function SingleShoe({ route, navigation }) {
-  const [fontsLoaded] = useFonts({
-    Montserrat_600SemiBold,
-    Montserrat_500Medium,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  let {
-    name,
-    sizes,
-    region,
-    rating,
-    reviews,
-    image,
-    id,
-    prices,
-    currencyIcons,
-  } = route.params;
   const [selectedColor, setSelectedColor] = useState(null);
   const [gender, setGender] = useState("male");
   const [availableSizes, setAvailableSizes] = useState(null);
   const [sizeIndex, setSizeIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
-  const [error, seterror] = useState(false);
-  const [success, setsuccess] = useState(false);
-  const [errorMessage, seterrorMessage] = useState();
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  let { name, sizes, region, rating, reviews, image, id, prices, currencyIcons } = route.params;
+
   const fetchSingleShoes = async () => {
     try {
       const request = await fetch(
@@ -87,8 +73,10 @@ function SingleShoe({ route, navigation }) {
 
   const renderStarIcon = (id) =>
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
+
   const addToCart = async () => {
     try {
+      setLoading(true);
       const request = await fetch(
         `http://192.168.0.104:5000/api/post/AddInCart/`,
         {
@@ -103,6 +91,7 @@ function SingleShoe({ route, navigation }) {
                 ? "black"
                 : "blue",
             Size: selectedSize,
+            Quantity:1
           }),
           headers: {
             Accept: "application/json",
@@ -112,15 +101,37 @@ function SingleShoe({ route, navigation }) {
       );
       const response = await request.json();
       if (response.success) {
-        setsuccess(true);
+        setSuccess(true);
+        setLoading(false);
+        setError(false);
       } else {
-        seterror(true);
+        setError(true);
+        setLoading(false);
+        setErrorMessage("Couldn't save item in cart");
+        setSuccess(false);
       }
     } catch (error) {
-      seterror(true);
-      seterrorMessage(error);
+      setLoading(false);
+      setError(true);
+      setSuccess(false);
+      setErrorMessage(error);
     }
   };
+
+  const [fontsLoaded] = useFonts({
+    Montserrat_600SemiBold,
+    Montserrat_500Medium,
+  });
+
+  useEffect(() => {
+    setSuccess(false);
+    setError(false);
+  }, [success, error]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {success ? (
@@ -129,9 +140,9 @@ function SingleShoe({ route, navigation }) {
             height: 60,
             backgroundColor: colors.successGreen,
             width: "100%",
-            display:"flex",
-            justifyContent:"center",
-            alignItems:"center"
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
           }}
         >
           <Text style={{ color: colors.white, ...styles.message }}>
@@ -144,12 +155,14 @@ function SingleShoe({ route, navigation }) {
             height: 60,
             backgroundColor: colors.red,
             width: "100%",
-            display:"flex",
-            justifyContent:"center",
-            alignItems:"center"
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
           }}
         >
-          <Text  style={{ color: colors.white, ...styles.message }}>Item has been added into your cart</Text>
+          <Text style={{ color: colors.white, ...styles.message }}>
+            {errorMessage}
+          </Text>
         </View>
       ) : null}
       <View style={styles.backButtonContainer}>
@@ -256,7 +269,11 @@ function SingleShoe({ route, navigation }) {
           </Text>
         </View>
         <TouchableOpacity onPress={addToCart} style={styles.addToCartButton}>
-          <Text style={styles.addToCartButtonText}>Add in cart</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color={colors.white} />
+          ) : (
+            <Text style={styles.addToCartButtonText}>Add in cart</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </View>

@@ -67,9 +67,84 @@ const getuser = async (req, res) => {
     res.status(400).json({ error: error, success: false });
   }
 };
-const getUserCart = async (req, res) => {};
-const getUserFavourite = async (req, res) => {};
+const getUserCart = async (req, res) => {
+  try {
+    console.log('fetching user cart');
+    const { id } = req.params;
+    const { limit, skip } = req.query;
+    console.log(id, limit, skip);
+
+    // Populate the shoeId field within the cart array
+    const cart = await User.findOne({ _id: id })
+      .populate({
+        path: 'cart.shoeId',
+        model: 'Shoe',
+      })
+      .exec();
+
+    if (cart) {
+      res.status(200).json({ cart: cart.cart, success: true });
+    } else {
+      res.status(400).json({ error: 'User not found', success: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: 'Internal server error', success: false });
+  }
+};
+
+const getUserFavourite = async (req, res) => {
+  try {
+    console.log('fetching user cart');
+    const { id } = req.params;
+    const { limit, skip } = req.query;
+    console.log(id, limit, skip);
+
+    // Populate the shoeId field within the cart array
+    const fav = await User.findOne({ _id: id })
+      .populate({
+        path: 'favourite.shoeId',
+        model: 'Shoe',
+      })
+      .exec();
+
+    if (cart) {
+      res.status(200).json({ favourite: fav.favourite, success: true });
+    } else {
+      res.status(400).json({ error: 'User not found', success: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: 'Internal server error', success: false });
+  }
+};
 const addInCart = async (req, res) => {
+  try {
+    const { UserId, ShoeId,Color,Size,Quantity } = req.body;
+    const object = {
+      shoeId:ShoeId,
+      color:Color,
+      size:Size,
+      quantity:Quantity
+    }
+    console.log(UserId,object)
+    const updated_user = await User.findOneAndUpdate(
+      { _id:UserId },
+      { $push: { cart: object } },
+      {new:true}
+    );
+    if (updated_user) {
+      console.log(updated_user)
+      res.status(200).json({ updated_user, success: true });
+    } else {
+      console.log('nuh')
+      res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    res.status(400).json({ error, success: false });
+  }
+};
+const addInFavourite = async (req, res) => {
   try {
     const { userId, ShoeId,Color,Size,Quantity } = req.body;
     const object = {
@@ -80,24 +155,8 @@ const addInCart = async (req, res) => {
     }
     const updated_user = await User.findOneAndUpdate(
       { userId },
-      { $push: { cart: object } },
+      { $push: { favourite: object } },
       {new:true}
-    );
-    if (updated_user) {
-      res.status(200).json({ updated_user, success: true });
-    } else {
-      res.status(400).json({ success: false });
-    }
-  } catch (error) {
-    res.status(400).json({ error, success: false });
-  }
-};
-const addInFavourite = async (req, res) => {
-  try {
-    const { userId, ShoeId } = req.body;
-    const updated_user = await User.findOneAndUpdate(
-      { userId },
-      { $push: { favourite: ShoeId } }
     );
     if (updated_user) {
       res.status(200).json({ updated_user, success: true });
