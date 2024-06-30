@@ -1,17 +1,26 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import colors from "../constants/colors";
-import {
-  Montserrat_500Medium,
-  Montserrat_300Light,
-} from "@expo-google-fonts/montserrat";
+import { Montserrat_500Medium, Montserrat_300Light } from "@expo-google-fonts/montserrat";
 import { useFonts } from "@expo-google-fonts/montserrat";
 import { Image } from "react-native";
-function FirstScreen({navigation}) {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+function FirstScreen({ navigation }) {
   const [fontsLoaded] = useFonts({
     Montserrat_300Light,
     Montserrat_500Medium,
   });
+
+  // useEffect(() => {
+  //   const getUser = async () => {
+  //     const cookie = await AsyncStorage.getItem("LOGIN_TOKEN");
+  //     if (cookie) {
+  //       navigation.navigate("Main");
+  //     }
+  //   };
+  //   getUser();
+  // }, [navigation]);
 
   if (!fontsLoaded) {
     return null;
@@ -19,17 +28,16 @@ function FirstScreen({navigation}) {
 
   return (
     <View style={styles.parent}>
-        <View style={{display:"flex",justifyContent:"center",position:"absolute",top:150,alignItems:"center"
-        }}>
+      <View style={{ display: "flex", justifyContent: "center", position: "absolute", top: 150, alignItems: "center" }}>
         <Text style={styles.Heading}>Welcome to KICKS</Text>
         <Text style={styles.SubHeading}>Let's get you started</Text>
-        </View>
+      </View>
       <Image source={require("../../assets/logo.png")} style={styles.image} />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate("Login")}}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate("Register")}}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Register")}>
           <Text style={styles.buttonText}>Register</Text>
         </TouchableOpacity>
       </View>
@@ -77,19 +85,19 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    position:"absolute",
-    bottom:80
+    position: "absolute",
+    bottom: 80,
   },
-  Heading:{
-    fontFamily:"Montserrat_500Medium",
-    fontSize:30,
-    color:colors.white
+  Heading: {
+    fontFamily: "Montserrat_500Medium",
+    fontSize: 30,
+    color: colors.white,
   },
-  SubHeading:{
-    color:colors.white,
-    fontSize:20,
-    fontFamily:"Montserrat_300Light"
-  }
+  SubHeading: {
+    color: colors.white,
+    fontSize: 20,
+    fontFamily: "Montserrat_300Light",
+  },
 });
 
 export default FirstScreen;

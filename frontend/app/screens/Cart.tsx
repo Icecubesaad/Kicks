@@ -8,12 +8,12 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import Showcard from "../components/Showcard";
 import { useFonts } from "expo-font";
 import { Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
 import colors from "../constants/colors";
+import CartItems from "../components/CartItems";
+import { useIsFocused } from "@react-navigation/native";
 function Cart({ navigation }) {
   const [cart, setcart] = useState([]);
   const [loading, setloading] = useState(false);
@@ -22,41 +22,35 @@ function Cart({ navigation }) {
   const limit = 10;
   const [skip, setskip] = useState(0);
   const [canFetch, setcanFetch] = useState(true);
-
-  const renderFooter = () => {
-    if (!canFetch) {
-      return (
-        <View style={styles.endMessageContainer}>
-          <Text style={styles.endMessageText}>No more products available</Text>
-        </View>
-      );
-    } else {
-      return null;
-    }
-  };
+  const [selectedItems, setselectedItems] = useState([]);
+  const isFocused = useIsFocused();
 
   const fetchUserCart = async () => {
     try {
-      const request = await fetch(
-        `http://192.168.0.104:5000/api/get/getUserCart/${"666d6bcd07457dc76de8b29c"}?limit=${limit}&skip=${skip}`,
-        {
-          method: "GET",
+      if(canFetch){
+        const request = await fetch(
+          `http://192.168.0.104:5000/api/get/getUserCart/${"666d6bcd07457dc76de8b29c"}?limit=${limit}&skip=${skip}`,
+          {
+            method: "GET",
+          }
+        );
+        const response = await request.json();
+        if (response.success && response.cart.length > 0) {
+          setcart(response.cart);
+          setskip(e=>e+10)
+          setcanFetch(false)
+        } else {
+          seterror(true);
+          setcanFetch(false);
+          seterrorMessage(response.error);
         }
-      );
-      const response = await request.json();
-      if (response.success && response.cart.length > 0) {
-        setcart((e) => [...e, ...response.cart]);
-        setcanFetch(true);
-      } else {
-        seterror(true);
-        setcanFetch(false);
-        seterrorMessage(response.error);
       }
     } catch (error) {
       seterror(true);
       setcanFetch(false);
       seterrorMessage("Internal server error");
     }
+      
   };
 
   const [fontsLoaded] = useFonts({
@@ -67,23 +61,14 @@ function Cart({ navigation }) {
     return <Text>Loading...</Text>;
   }
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    if(isFocused){
       fetchUserCart();
-
-      // Optional cleanup function
-      return () => {
-        setcart([]);
-        setskip(0);
-        setcanFetch(true);
-        seterror(false);
-        seterrorMessage("");
-      };
-    }, [])
-  );
+    }
+  }, []);
   return (
     <View>
-        <View style={{ paddingLeft: 20 }}>
+        <View style={{ paddingLeft: 20,marginTop:40 }}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="chevron-back-outline" size={30} color="black" />
           </TouchableOpacity>
@@ -96,31 +81,25 @@ function Cart({ navigation }) {
             <ActivityIndicator size="large" color={colors.blue} />
           </View>
         ) : (
-          <View>
+          <View style={{marginTop:20}}>
             <FlatList
               data={cart}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
-                <Showcard
-                  name={item.shoeId.name}
-                  price={item.shoeId.prices}
-                  rating={"5.0"}
-                  image={item.shoeId.image}
-                  currencyIcons={"dollar"}
-                  currency={"USA"}
-                  navigation={navigation}
-                  id={item.shoeId._id}
-                  sizes={item.shoeId.sizes}
-                />
+                <CartItems navigation={navigation} SelectedItems={selectedItems} setSelectedItems={setselectedItems} object={item} currencyIcons={"dollar"} currency={"USA"} />
               )}
-              numColumns={2}
-              columnWrapperStyle={styles.row}
               onEndReached={fetchUserCart}
               onEndReachedThreshold={0.1}
-              ListFooterComponent={renderFooter}
             />
           </View>
         )}
+        {
+          selectedItems.length>=1?
+          <View style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+          <TouchableOpacity style={styles.addToCartButton}><Text style={styles.addToCartButtonText}>Check Out ({selectedItems.length})</Text></TouchableOpacity>
+            </View>
+            :null
+        }
     </View>
   );
 }
@@ -140,7 +119,25 @@ const styles = StyleSheet.create({
   },
   name: {
     fontFamily: "Montserrat_600SemiBold",
-    fontSize: 20,
+    fontSize: 25,
+    textAlign:"center",
+
+  },
+  addToCartButton: {
+    width: "90%",
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.white,
+    backgroundColor: colors.blueCard,
+    borderRadius: 14,
+    marginTop: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addToCartButtonText: {
+    fontFamily: "Montserrat_600SemiBold",
+    fontSize: 17,
+    color: colors.white,
   },
 });
 export default Cart;

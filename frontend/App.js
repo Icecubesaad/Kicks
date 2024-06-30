@@ -15,6 +15,8 @@ import Like from "./app/screens/Like";
 import Profile from "./app/screens/Profile";
 import colors from "./app/constants/colors";
 import SingleShoe from "./app/screens/SingleShoe";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 // Creating Stack and Tab Navigators
 const Stack = createNativeStackNavigator();
@@ -27,23 +29,27 @@ function MainTabs() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Cart') {
-            iconName = 'shopping-cart';
-          } else if (route.name === 'Like') {
-            iconName = 'heart';
-          } else if (route.name === 'Profile') {
-            iconName = 'user';
+          if (route.name === "Home") {
+            iconName = "home";
+          } else if (route.name === "Cart") {
+            iconName = "shopping-cart";
+          } else if (route.name === "Like") {
+            iconName = "heart";
+          } else if (route.name === "Profile") {
+            iconName = "user";
           }
-          return <Feather name={iconName} size={size} color={color}/>;
+          return <Feather name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: 'black',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle:{backgroundColor:colors.white,borderWidth:0, borderColor:colors.white},
-        tabBarIconStyle:{opacity:0.7},
+        tabBarActiveTintColor: "black",
+        tabBarInactiveTintColor: "gray",
+        tabBarStyle: {
+          backgroundColor: colors.white,
+          borderWidth: 0,
+          borderColor: colors.white,
+        },
+        tabBarIconStyle: { opacity: 0.7 },
         tabBarShowLabel: false,
-        headerShown: false, 
+        headerShown: false,
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -57,15 +63,17 @@ function MainTabs() {
 // Main app component
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/* <Stack.Screen name="Splash" component={Splash} />
-        <Stack.Screen name="FirstScreen" component={FirstScreen} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Register" component={Register} /> */}
-        <Stack.Screen name="Main" component={MainTabs} />
-        <Stack.Screen name="single" component={SingleShoe} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="FirstScreen" component={FirstScreen} />
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Register" component={Register} />
+          <Stack.Screen name="Main" component={MainTabs} />
+          <Stack.Screen name="single" component={SingleShoe} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }

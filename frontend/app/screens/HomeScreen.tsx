@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, Text, FlatList, TouchableOpacity } from "react-native";
 import Header from "../components/Header";
 import NewCollection from "../components/NewCollection";
@@ -7,8 +7,15 @@ import { useFonts } from "expo-font";
 import { Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
 import Showcard from "../components/Showcard";
 import * as Location from 'expo-location';
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../store/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchUser } from "../../reducer/user/userSlice";
+import { AppDispatch } from "../../store/store";
 
 function HomeScreen({ navigation }) {
+  const dispatch = useDispatch<AppDispatch>();
+  const { username, id,favourite } = useSelector((state: RootState) => state.user);
   const [shoes, setShoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -20,7 +27,7 @@ function HomeScreen({ navigation }) {
   const [region, setRegion] = useState(null);
   const [currencyIcon, setCurrencyIcon] = useState("dollar");
 
-  const fetchShoes = async () => {
+  const fetchShoes = useCallback(async () => {
     if (canFetch) {
       try {
         const request = await fetch(
@@ -48,11 +55,11 @@ function HomeScreen({ navigation }) {
         setLoading(false);
       }
     }
-  };
+  }, [canFetch, company, skip, limit]);
 
   useEffect(() => {
     fetchShoes();
-  }, [skip, company]);
+  }, [fetchShoes]);
 
   useEffect(() => {
     (async () => {
@@ -88,7 +95,19 @@ function HomeScreen({ navigation }) {
         setRegion('Other');
       }
     })();
+    if (username == "") {
+      getUser();
+    }
   }, []);
+
+  const getUser = async () => {
+    const cookie = await AsyncStorage.getItem("LOGIN_TOKEN");
+    if (!cookie) {
+      navigation.navigate("FirstScreen");
+    } else {
+      dispatch(fetchUser());
+    }
+  };
 
   const renderFooter = () => {
     if (!canFetch) {
@@ -107,7 +126,6 @@ function HomeScreen({ navigation }) {
     setSkip(0);
     setCanFetch(true);
     setCompany(selectedCompany);
-    fetchShoes()
   };
 
   const [fontsLoaded] = useFonts({
@@ -145,7 +163,7 @@ function HomeScreen({ navigation }) {
             currencyIcons={currencyIcon}
             currency={region}
             navigation={navigation}
-            id={item._id}
+            ShoeId={item._id}
             sizes={item.sizes}
           />
         )}

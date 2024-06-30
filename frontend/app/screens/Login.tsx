@@ -14,8 +14,11 @@ import {
   Montserrat_500Medium,
   Montserrat_300Light,
 } from "@expo-google-fonts/montserrat";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
+import { saveUserInformation } from "../../reducer/user/userSlice";
 function Login({ navigation }) {
+  const dispatch = useDispatch()
   const [fontsLoaded] = useFonts({
     Montserrat_300Light,
     Montserrat_500Medium,
@@ -41,6 +44,8 @@ function Login({ navigation }) {
       });
       const response = await request.json();
       if (request.status === 200) {
+        AsyncStorage.setItem('LOGIN_TOKEN',response.token)
+        dispatch(saveUserInformation(response))
         navigation.navigate("Main")
       } else {
         setError(true);

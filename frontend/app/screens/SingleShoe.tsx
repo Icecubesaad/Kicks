@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
@@ -17,7 +17,7 @@ import {
 } from "@expo-google-fonts/montserrat";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
-
+import { Feather } from "@expo/vector-icons";
 function SingleShoe({ route, navigation }) {
   const [selectedColor, setSelectedColor] = useState(null);
   const [gender, setGender] = useState("male");
@@ -28,13 +28,25 @@ function SingleShoe({ route, navigation }) {
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  let { name, sizes, region, rating, reviews, image, id, prices, currencyIcons } = route.params;
+  const [liked, setliked] = useState(false);
+  let {
+    name,
+    sizes,
+    region,
+    rating,
+    reviews,
+    image,
+    ShoeId,
+    prices,
+    currencyIcons,
+    id,
+    Favourite
+  } = route.params;
 
   const fetchSingleShoes = async () => {
     try {
       const request = await fetch(
-        `http://192.168.0.104:5000/api/get/getShoeById/${id}`
+        `http://192.168.0.104:5000/api/get/getShoeById/${ShoeId}`
       );
       const response = await request.json();
       if (response.success) {
@@ -43,7 +55,7 @@ function SingleShoe({ route, navigation }) {
         rating = response.data.rating;
         reviews = response.data.reviews;
         image = response.data.image;
-        id = response.data._id;
+        ShoeId = response.data._id;
       }
     } catch (error) {
       console.error(error);
@@ -73,7 +85,13 @@ function SingleShoe({ route, navigation }) {
 
   const renderStarIcon = (id) =>
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
-
+  useEffect(() => {
+    Favourite.map(e=>{
+      if(e.shoeId._id == ShoeId){
+        setliked(true)
+      }
+    })
+  }, []);
   const addToCart = async () => {
     try {
       setLoading(true);
@@ -82,7 +100,7 @@ function SingleShoe({ route, navigation }) {
         {
           method: "POST",
           body: JSON.stringify({
-            ShoeId: id,
+            ShoeId: ShoeId,
             UserId: "666d6bcd07457dc76de8b29c",
             Color:
               selectedColor == 1
@@ -91,7 +109,7 @@ function SingleShoe({ route, navigation }) {
                 ? "black"
                 : "blue",
             Size: selectedSize,
-            Quantity:1
+            Quantity: 1,
           }),
           headers: {
             Accept: "application/json",
@@ -132,6 +150,56 @@ function SingleShoe({ route, navigation }) {
     return null;
   }
 
+  const addInUserFavourite = async () => {
+    try {
+      setliked(true)
+      const request = await fetch(
+        "http://192.168.0.104:5000/api/post/AddInFavourite",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ UserId: id, ShoeId: ShoeId }),
+        }
+      );
+      const response = await request.json();
+      if (response.success) {
+        setSuccess(true);
+        setliked(true);
+      } else {
+        setliked(false);
+        setliked(true);
+      }
+    } catch (error) {
+      setError(false);
+    }
+  };
+  const removeFromFavourite=async()=>{
+    try{
+    setliked(false)
+    const request = await fetch("http://192.168.0.104:5000/api/post/RemoveFromCart",{
+      method:"POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ UserId: id, ShoeId: ShoeId }),
+    })
+    const response = await request.json();
+      if (response.success) {
+        setSuccess(true);
+        setliked(true);
+      } else {
+        setliked(false);
+        setliked(true);
+      }
+    } catch (error) {
+      setError(false);
+    }
+  }
+
   return (
     <View style={styles.container}>
       {success ? (
@@ -142,7 +210,7 @@ function SingleShoe({ route, navigation }) {
             width: "100%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           <Text style={{ color: colors.white, ...styles.message }}>
@@ -157,7 +225,7 @@ function SingleShoe({ route, navigation }) {
             width: "100%",
             display: "flex",
             justifyContent: "center",
-            alignItems: "center"
+            alignItems: "center",
           }}
         >
           <Text style={{ color: colors.white, ...styles.message }}>
@@ -174,12 +242,39 @@ function SingleShoe({ route, navigation }) {
         <Image source={{ uri: image[0] }} style={styles.image} />
       </View>
       <ScrollView style={styles.scrollView}>
-        <Text style={styles.name}>{name}</Text>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.rating}>
-            <AntDesign name="star" color="black" size={25} />
-            {rating} ({reviews} reviews)
-          </Text>
+        <View
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <View>
+            <Text style={styles.name}>{name}</Text>
+            <View style={styles.ratingContainer}>
+              <Text style={styles.rating}>
+                <AntDesign name="star" color="black" size={25} />
+                {rating} ({reviews} reviews)
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              paddingRight: 20,
+            }}
+          >
+            {liked ? (
+              <TouchableOpacity onPress={removeFromFavourite}>
+                <Feather name="heart" color="red" size={30} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={addInUserFavourite}>
+                <Feather name="heart" color="black" size={30} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
         <View style={styles.colorSelectionContainer}>
           <Text style={styles.rating}>Select Color</Text>
