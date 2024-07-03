@@ -15,7 +15,7 @@ import { AppDispatch } from "../../store/store";
 
 function HomeScreen({ navigation }) {
   const dispatch = useDispatch<AppDispatch>();
-  const { username, id,favourite } = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user);
   const [shoes, setShoes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
@@ -95,11 +95,11 @@ function HomeScreen({ navigation }) {
         setRegion('Other');
       }
     })();
-    if (username == "") {
+    if (user.username == "") {
       getUser();
     }
+    console.log("from homeScreen : ",user)
   }, []);
-
   const getUser = async () => {
     const cookie = await AsyncStorage.getItem("LOGIN_TOKEN");
     if (!cookie) {
@@ -165,6 +165,7 @@ function HomeScreen({ navigation }) {
             navigation={navigation}
             ShoeId={item._id}
             sizes={item.sizes}
+            user={{favourite:user.favourite,id:user.id}}
           />
         )}
         numColumns={2}

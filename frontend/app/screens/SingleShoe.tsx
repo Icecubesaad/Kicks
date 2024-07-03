@@ -1,3 +1,4 @@
+// fetch data again or send the updated data back
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -18,7 +19,10 @@ import {
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { addNewFavouriteReducer, removeFromFavouriteReducer,updateFavouriteReducer } from "../../reducer/user/userSlice";
 function SingleShoe({ route, navigation }) {
+  const dispatch = useDispatch()
   const [selectedColor, setSelectedColor] = useState(null);
   const [gender, setGender] = useState("male");
   const [availableSizes, setAvailableSizes] = useState(null);
@@ -39,7 +43,7 @@ function SingleShoe({ route, navigation }) {
     ShoeId,
     prices,
     currencyIcons,
-    id,
+    UserId,
     Favourite
   } = route.params;
 
@@ -87,7 +91,7 @@ function SingleShoe({ route, navigation }) {
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
   useEffect(() => {
     Favourite.map(e=>{
-      if(e.shoeId._id == ShoeId){
+      if(e.shoeId == ShoeId){
         setliked(true)
       }
     })
@@ -141,10 +145,6 @@ function SingleShoe({ route, navigation }) {
     Montserrat_500Medium,
   });
 
-  useEffect(() => {
-    setSuccess(false);
-    setError(false);
-  }, [success, error]);
 
   if (!fontsLoaded) {
     return null;
@@ -161,13 +161,14 @@ function SingleShoe({ route, navigation }) {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ UserId: id, ShoeId: ShoeId }),
+          body: JSON.stringify({ UserId: UserId, ShoeId: ShoeId }),
         }
       );
       const response = await request.json();
       if (response.success) {
         setSuccess(true);
         setliked(true);
+        dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
       } else {
         setliked(false);
         setliked(true);
@@ -179,18 +180,19 @@ function SingleShoe({ route, navigation }) {
   const removeFromFavourite=async()=>{
     try{
     setliked(false)
-    const request = await fetch("http://192.168.0.104:5000/api/post/RemoveFromCart",{
+    const request = await fetch("http://192.168.0.104:5000/api/post/RemoveFromFavourite",{
       method:"POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ UserId: id, ShoeId: ShoeId }),
+      body: JSON.stringify({ UserId: UserId, ShoeId: ShoeId }),
     })
     const response = await request.json();
       if (response.success) {
         setSuccess(true);
         setliked(true);
+        dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
       } else {
         setliked(false);
         setliked(true);
@@ -266,11 +268,11 @@ function SingleShoe({ route, navigation }) {
             }}
           >
             {liked ? (
-              <TouchableOpacity onPress={removeFromFavourite}>
+              <TouchableOpacity onPress={()=>{removeFromFavourite(),dispatch(removeFromFavouriteReducer(ShoeId))}}>
                 <Feather name="heart" color="red" size={30} />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={addInUserFavourite}>
+              <TouchableOpacity onPress={()=>{addInUserFavourite(),dispatch(addNewFavouriteReducer(ShoeId))}}>
                 <Feather name="heart" color="black" size={30} />
               </TouchableOpacity>
             )}

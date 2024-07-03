@@ -12,8 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 
-function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, ShoeId, navigation }) {
-  const { favourite, id } = useSelector((state: RootState) => state.user);
+function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, ShoeId, navigation,user }) {
   const [prices, setPrices] = useState(price[0]?.price || null);
   const [liked, setLiked] = useState(false);
   const [fontsLoaded] = useFonts({
@@ -23,13 +22,13 @@ function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, 
 
   // Effect to check if the shoe is in favourites
   useEffect(() => {
-    favourite.forEach(e => {
-      if (e.shoeId._id === id) {
+    user.favourite.forEach(e => {
+      if (e.shoeId == ShoeId) {
         setLiked(true);
       }
     });
-  }, [favourite, id]);
-
+  }, [user]);
+  
   if (!fontsLoaded) {
     return null; // Fonts are still loading
   }
@@ -47,8 +46,8 @@ function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, 
           currency,
           sizes,
           prices,
-          id,
-          Favourite: favourite,
+          UserId : user.id,
+          Favourite: user.favourite,
         });
       }}
       style={styles.parent}

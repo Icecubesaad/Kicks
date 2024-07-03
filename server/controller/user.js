@@ -55,7 +55,7 @@ const Login = async (req, res) => {
 const getuser = async (req, res) => {
   try {
     const userId = req.user.id;
-    console.log("fetching user")
+    console.log("fetching user");
     const user_account = await User.findById(userId).select("-password").exec();
     if (user_account) {
       res.status(200).json({ data: user_account, success: true });
@@ -68,24 +68,24 @@ const getuser = async (req, res) => {
 };
 const getUserCart = async (req, res) => {
   try {
-    console.log('fetching user cart');
+    console.log("fetching user cart");
     const { id } = req.params;
 
     // Populate the shoeId field within the cart array
     const user = await User.findOne({ _id: id }).exec();
     const cart = await User.populate(user, {
-      path: 'cart.shoeId',
-      model: 'Shoe'
+      path: "cart.shoeId",
+      model: "Shoe",
     });
-    
+
     if (cart) {
       res.status(200).json({ cart: cart.cart, success: true });
     } else {
-      res.status(400).json({ error: 'User not found', success: false });
+      res.status(400).json({ error: "User not found", success: false });
     }
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: 'Internal server error', success: false });
+    res.status(400).json({ error: "Internal server error", success: false });
   }
 };
 
@@ -96,41 +96,41 @@ const getUserFavourite = async (req, res) => {
     // Populate the shoeId field within the cart array
     const fav = await User.findOne({ _id: id })
       .populate({
-        path: 'favourite.shoeId',
-        model: 'Shoe',
+        path: "favourite.shoeId",
+        model: "Shoe",
       })
       .exec();
 
     if (cart) {
       res.status(200).json({ favourite: fav.favourite, success: true });
     } else {
-      res.status(400).json({ error: 'User not found', success: false });
+      res.status(400).json({ error: "User not found", success: false });
     }
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: 'Internal server error', success: false });
+    res.status(400).json({ error: "Internal server error", success: false });
   }
 };
 const addInCart = async (req, res) => {
   try {
-    const { UserId, ShoeId,Color,Size,Quantity } = req.body;
+    const { UserId, ShoeId, Color, Size, Quantity } = req.body;
     const object = {
-      shoeId:ShoeId,
-      color:Color,
-      size:Size,
-      quantity:Quantity
-    }
-    console.log(UserId,object)
+      shoeId: ShoeId,
+      color: Color,
+      size: Size,
+      quantity: Quantity,
+    };
+    console.log(UserId, object);
     const updated_user = await User.findOneAndUpdate(
-      { _id:UserId },
+      { _id: UserId },
       { $push: { cart: object } },
-      {new:true}
+      { new: true }
     );
     if (updated_user) {
-      console.log(updated_user)
+      console.log(updated_user);
       res.status(200).json({ updated_user, success: true });
     } else {
-      console.log('nuh')
+      console.log("nuh");
       res.status(400).json({ success: false });
     }
   } catch (error) {
@@ -139,15 +139,34 @@ const addInCart = async (req, res) => {
 };
 const addInFavourite = async (req, res) => {
   try {
-    const { userId, ShoeId} = req.body;
-    console.log("addingg in favourite",userId,ShoeId)
+    const { UserId, ShoeId } = req.body;
+    console.log("addingg in favourite", UserId, ShoeId);
     const updated_user = await User.findOneAndUpdate(
-      { userId },
-      { $push: { favourite: ShoeId } },
-      {new:true}
+      { _id: UserId },
+      { $push: { favourite: { shoeId: ShoeId } } },
+      { new: true }
     );
     if (updated_user) {
-      console.log(updated_user)
+      console.log(updated_user);
+      res.status(200).json({ updated_user, success: true });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error, success: false });
+  }
+};
+const removeFromFavourite = async (req, res) => {
+  try {
+    const { UserId, ShoeId } = req.body;
+    const updated_user = await User.findOneAndUpdate(
+      { _id: UserId },
+      { $pull: { favourite: { shoeId: ShoeId } } },
+      { new: true }
+    );
+    if (updated_user) {
+      console.log(updated_user);
       res.status(200).json({ updated_user, success: true });
     } else {
       res.status(400).json({ success: false });
@@ -156,23 +175,6 @@ const addInFavourite = async (req, res) => {
     res.status(400).json({ error, success: false });
   }
 };
-const removeFromCart = async( req,res)=>{
-  try {
-    const { userId, ShoeId} = req.body;
-    const updated_user = await User.findOneAndUpdate(
-      { userId },
-      { $pull: { favourite: ShoeId } },
-      {new:true}
-    );
-    if (updated_user) {
-      res.status(200).json({ updated_user, success: true });
-    } else {
-      res.status(400).json({ success: false });
-    }
-  } catch (error) {
-    res.status(400).json({ error, success: false });
-  }
-}
 module.exports = {
   Register,
   Login,
@@ -181,5 +183,5 @@ module.exports = {
   getuser,
   addInCart,
   addInFavourite,
-  removeFromCart
+  removeFromFavourite,
 };

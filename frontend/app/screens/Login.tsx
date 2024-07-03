@@ -45,6 +45,7 @@ function Login({ navigation }) {
       const response = await request.json();
       if (request.status === 200) {
         AsyncStorage.setItem('LOGIN_TOKEN',response.token)
+        console.log(response)
         dispatch(saveUserInformation(response))
         navigation.navigate("Main")
       } else {
