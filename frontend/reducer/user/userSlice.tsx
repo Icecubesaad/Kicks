@@ -9,7 +9,7 @@ interface CartState {
     _id: string;
     prices: any;
     image: any;
-    name:string
+    name: string;
   };
   size: string | number;
 }
@@ -18,11 +18,12 @@ interface UserState {
   username: string;
   preferredPaymentMethod: string[];
   cart: CartState[];
-  favourite: { shoeId: string }[];
+  favourite: { _id: string; prices: any; name: string; image: any }[];
   token: string;
   loading: boolean;
   error: string;
   id: string;
+  region:string
 }
 
 // Define the initial state with the type
@@ -35,6 +36,7 @@ const initialState: UserState = {
   loading: false,
   error: "",
   id: "",
+  region:""
 };
 
 export const fetchUser = createAsyncThunk(
@@ -65,12 +67,13 @@ const userSlice = createSlice({
   reducers: {
     saveUserInformation: (
       state,
-      action: PayloadAction<{ data; token: string }>
+      action
     ) => {
+      console.log(action)
       state.cart = action.payload.data.cart || [];
       state.preferredPaymentMethod =
       action.payload.data.preferredPaymentMethod || [];
-      state.favourite = action.payload.data.favourite || [];
+      state.favourite = action.payload.data.favourite
       state.username = action.payload.data.username || "";
       state.token = action.payload.token;
       state.id = action.payload.data._id;
@@ -82,34 +85,30 @@ const userSlice = createSlice({
       state.username = "";
       state.token = "";
     },
-    addNewFavouriteReducer: (
-      state,
-      action: PayloadAction<{ shoeId: string }>
-    ) => {
-      const object = { shoeId: action.payload.shoeId };
-      console.log(object, state.favourite);
-      if (!state.favourite.some((fav) => fav.shoeId === object.shoeId)) {
-        console.log("adding into favourite");
+    addNewFavouriteReducer: (state, action) => {
+      const object = {
+        _id: action.payload.shoeId,
+        name: action.payload.name,
+        prices: action.payload.prices,
+        image: action.payload.image,
+      };
+      if (!state.favourite.some((fav) => fav._id === object._id)) {
         state.favourite.push(object);
       }
     },
     removeFromFavouriteReducer: (
       state,
-      action: PayloadAction<{ shoeId: string }>
+      action: PayloadAction<{ _id: string }>
     ) => {
-      console.log("removing from Favourite", action.payload.shoeId);
       state.favourite = state.favourite.filter(
-        (fav) => fav.shoeId !== action.payload.shoeId
+        (fav) => fav._id !== action.payload._id
       );
     },
-    updateFavouriteReducer: (
-      state,
-      action: PayloadAction<{ data: { shoeId: string }[] }>
-    ) => {
+    updateFavouriteReducer: (state, action) => {
       state.favourite = action.payload.data;
     },
     addNewCartReducer: (state, action) => {
-      console.log("adding new item into the cart",action.payload)
+      console.log("adding new item into the cart", action.payload);
       const object = {
         shoe: action.payload.shoe,
         color: action.payload.color,
@@ -125,12 +124,12 @@ const userSlice = createSlice({
         )
       ) {
         state.cart.push(object);
-        console.log("succesfully added")
+        console.log("succesfully added");
       }
     },
     removeFromCartReducer: (state, action) => {
       state.cart = state.cart.filter(
-        (cartItem) => !(cartItem.shoe._id === action.payload.shoe._id)
+        (cartItem) => !(cartItem.shoe._id === action.payload._id)
       );
     },
     updateCartReducer: (
@@ -139,6 +138,9 @@ const userSlice = createSlice({
     ) => {
       state.cart = action.payload.data;
     },
+    setUserRegion : (state,action)=>{
+      state.region = action.payload.region
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -173,5 +175,6 @@ export const {
   addNewCartReducer,
   removeFromCartReducer,
   updateCartReducer,
+  setUserRegion
 } = userSlice.actions;
 export default userSlice.reducer;

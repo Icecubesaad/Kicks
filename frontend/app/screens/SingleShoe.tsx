@@ -1,4 +1,5 @@
 // fetch data again or send the updated data back
+// fetch data when coming from favourite items.
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -102,9 +103,8 @@ function SingleShoe({ route, navigation }) {
   const renderStarIcon = (id) =>
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
   useEffect(() => {
-    console.log(ShoeId)
     Favourite.map(e=>{
-      if(e.shoeId == ShoeId){
+      if(e._id == ShoeId){
         setliked(true)
       }
       else{
@@ -306,11 +306,11 @@ function SingleShoe({ route, navigation }) {
             }}
           >
             {liked ? (
-              <TouchableOpacity onPress={()=>{removeFromFavourite(),dispatch(removeFromFavouriteReducer({shoeId:ShoeId}))}}>
+              <TouchableOpacity onPress={()=>{removeFromFavourite(),dispatch(removeFromFavouriteReducer({_id:ShoeId}))}}>
                 <Feather name="heart" color="red" size={30} />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={()=>{addInUserFavourite(),dispatch(addNewFavouriteReducer({shoeId:ShoeId}))}}>
+              <TouchableOpacity onPress={()=>{addInUserFavourite(),dispatch(addNewFavouriteReducer({shoeId:ShoeId,name,prices:prices,image:image}))}}>
                 <Feather name="heart" color="black" size={30} />
               </TouchableOpacity>
             )}

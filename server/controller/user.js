@@ -25,19 +25,29 @@ const Login = async (req, res) => {
     const body = req.body;
     const requested_account = await User.findOne({ email: body.email })
       .populate({
-        path: 'cart.shoe', // Specify the path to the shoe field inside the cart array
-        model: 'Shoe', // Specify the model to populate
+        path: "cart.shoe", // Specify the path to the shoe field inside the cart array
+        model: "Shoe", // Specify the model to populate
+      })
+      .populate({
+        path: "favourite.shoeId",
+        model: "Shoe",
+        select: "name image prices _id", // Specify the fields you want
       })
       .exec();
     if (requested_account) {
-      const compare = await bcrypt.compare(body.password, requested_account.password);
+      const compare = await bcrypt.compare(
+        body.password,
+        requested_account.password
+      );
       if (compare) {
         const token = jsonwebtoken.sign(
           { id: requested_account._id },
           process.env.SECRET
         );
         res.cookie("token", token);
-        res.status(200).json({ success: true, data: requested_account, token: token });
+        res
+          .status(200)
+          .json({ success: true, data: requested_account, token: token });
       } else {
         res.status(400).json({
           error: "Login and Password aren't correct",
@@ -45,7 +55,9 @@ const Login = async (req, res) => {
         });
       }
     } else {
-      res.status(400).json({ error: "Login and Password aren't correct", success: false });
+      res
+        .status(400)
+        .json({ error: "Login and Password aren't correct", success: false });
     }
   } catch (error) {
     res.status(400).json({ error: error.message, success: false });
@@ -101,7 +113,7 @@ const getUserFavourite = async (req, res) => {
       })
       .exec();
 
-    if (cart) {
+    if (fav) {
       res.status(200).json({ favourite: fav.favourite, success: true });
     } else {
       res.status(400).json({ error: "User not found", success: false });
@@ -114,7 +126,7 @@ const getUserFavourite = async (req, res) => {
 const addInCart = async (req, res) => {
   try {
     const { userId, shoe, color, size, quantity } = req.body;
-    console.log(shoe)
+    console.log(shoe);
     const cartItem = {
       shoe: shoe,
       color: color,
@@ -130,7 +142,7 @@ const addInCart = async (req, res) => {
 
     if (updatedUser) {
       await updatedUser.populate("cart.shoe");
-      
+
       res.status(200).json({ data: updatedUser.cart, success: true });
     } else {
       console.log("User not found");
@@ -145,7 +157,6 @@ const addInCart = async (req, res) => {
 const addInFavourite = async (req, res) => {
   try {
     const { UserId, ShoeId } = req.body;
-    console.log("addingg in favourite", UserId, ShoeId);
     const updated_user = await User.findOneAndUpdate(
       { _id: UserId },
       { $push: { favourite: { shoeId: ShoeId } } },
@@ -180,6 +191,23 @@ const removeFromFavourite = async (req, res) => {
     res.status(400).json({ error, success: false });
   }
 };
+const removeFromCart = async (req, res) => {
+  try {
+    const { userId, shoeId } = req.body;
+    const updated_user = await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { cart: { shoe: shoeId } } },
+      { new: true }
+    );
+    if (updated_user) {
+      res.status(200).json({ updated_user, success: true });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  } catch (error) {
+    res.status(400).json({ error, success: false });
+  }
+};
 module.exports = {
   Register,
   Login,
@@ -189,4 +217,5 @@ module.exports = {
   addInCart,
   addInFavourite,
   removeFromFavourite,
+  removeFromCart,
 };

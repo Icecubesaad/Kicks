@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacityBase,
 } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
 import colors from "../constants/colors";
 import { useFonts } from "expo-font";
 import { FontAwesome } from "@expo/vector-icons";
@@ -15,57 +14,28 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDispatch,useSelector } from "react-redux";
 import { removeFromCartReducer } from "../../reducer/user/userSlice";
 import { RootState } from "../../store/store";
-function CartItems({
+function LikeCard({
   navigation,
-  setSelectedItems,
-  SelectedItems,
   currencyIcons,
   currency,
   object,
 }) {
   const user = useSelector((state : RootState)=>state.user)
   const dispatch = useDispatch();
-  const [selected, setSelected] = useState(false);
-  const [quantity, setQuantity] = useState(object.quantity);
   const [price, setPrice] = useState();
   const [name, setname] = useState();
   const [error, seterror] = useState(false);
   const [success, setsuccess] = useState(false);
-  const AddIntoSelectedItems = (item) => {
-    const itemExists = SelectedItems.some(
-      (obj) => obj.shoe._id === item.shoe._id
-    );
-
-    if (itemExists) {
-      const newArray = SelectedItems.filter(
-        (obj) => obj.shoe._id !== item.shoe._id
-      );
-      setSelectedItems(newArray);
-    } else {
-      const newItem = { ...item, quantity };
-      setSelectedItems((prevItems) => [...prevItems, newItem]);
-    }
-  };
-
-  const quantityControl = (increase) => {
-    setQuantity((prevQuantity) => {
-      const newQuantity = increase
-        ? prevQuantity + 1
-        : Math.max(prevQuantity - 1, 1);
-      AddIntoSelectedItems({ ...object, quantity: newQuantity });
-      return newQuantity;
-    });
-  };
   const removeFromCart = async () => {
     try {
       const request = await fetch(
-        "http://192.168.0.104:5000/api/post/RemoveFromCart",
+        "http://192.168.0.104:5000/api/post/RemoveFromFavourite",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ shoeId: object.shoe._id,userId: user.id}),
+          body: JSON.stringify({ shoeId: object.shoeId._id,userId: user.id}),
         }
       );
       const response = await request.json();
@@ -74,7 +44,7 @@ function CartItems({
         setsuccess(true)
         dispatch(
           removeFromCartReducer({
-            _id: object.shoe._id,
+            _id: object.shoeId,
           })
         );
       } else {
@@ -88,19 +58,15 @@ function CartItems({
     }
   };
   useEffect(() => {
-    if (object.shoe.name) {
-      setname(object.shoe.name.substring(0, 15));
+    console.log(object,"like items")
+    if (object.shoeId.name) {
+      setname(object.shoeId.name.substring(0, 15));
     }
-    const selectedPrice = object.shoe.prices.find(
+    const selectedPrice = object.shoeId.prices.find(
       (e) => e.currency === currency
     );
-    setPrice(selectedPrice ? selectedPrice.price : object.shoe.prices[0].price);
+    setPrice(selectedPrice ? selectedPrice.price : object.shoeId.prices[0].price);
   }, [currency, object]);
-
-  const handleSelection = () => {
-    setSelected((prevSelected) => !prevSelected);
-    AddIntoSelectedItems(object);
-  };
 
   const [fontsLoaded] = useFonts({
     Montserrat_600SemiBold,
@@ -114,12 +80,13 @@ function CartItems({
       style={{
         display: "flex",
         flexDirection: "row",
-        borderWidth: selected ? 3 : 1,
         borderColor: colors.black,
       }}
     >
       <TouchableOpacity
-        onPress={handleSelection}
+        onPress={()=>navigation.navigate("single",{
+          ShoeId:object.shoeId._id
+        })}
         style={{
           display: "flex",
           flexDirection: "row",
@@ -131,7 +98,7 @@ function CartItems({
         }}
       >
         <Image
-          source={{ uri: object.shoe.image[0] }}
+          source={{ uri: object.shoeId.image[0] }}
           style={{
             height: 100,
             width: 100,
@@ -151,39 +118,6 @@ function CartItems({
           <Text style={{ fontFamily: "Montserrat_600SemiBold", fontSize: 16 }}>
             {name}
           </Text>
-          <View style={{ display: "flex", gap: 10, flexDirection: "row" }}>
-            <TouchableOpacity
-              onPress={() => quantityControl(true)}
-              style={{
-                width: 28,
-                height: 28,
-                borderWidth: 1,
-                backgroundColor: colors.lightGray,
-                borderColor: colors.black,
-                borderRadius: 999,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Feather name="plus" size={24} color="black" />
-            </TouchableOpacity>
-            <Text>{quantity}</Text>
-            <TouchableOpacity
-              onPress={() => quantityControl(false)}
-              style={{
-                width: 28,
-                height: 28,
-                borderWidth: 1,
-                backgroundColor: colors.lightGray,
-                borderColor: colors.black,
-                borderRadius: 999,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Feather name="minus" size={24} color="black" />
-            </TouchableOpacity>
-          </View>
         </View>
         <View
           style={{
@@ -197,20 +131,6 @@ function CartItems({
           <Text style={{ fontFamily: "Montserrat_600SemiBold", fontSize: 20 }}>
             {price} <FontAwesome name={currencyIcons} size={16} color="black" />
           </Text>
-          <View
-            style={{
-              height: 25,
-              width: 25,
-              borderWidth: 1,
-              borderRadius: 999,
-              backgroundColor:
-                object.color === "blue"
-                  ? colors.blue
-                  : object.color === "red"
-                  ? colors.red
-                  : colors.black,
-            }}
-          ></View>
         </View>
       </TouchableOpacity>
       <View
@@ -229,4 +149,4 @@ function CartItems({
   );
 }
 
-export default CartItems;
+export default LikeCard;

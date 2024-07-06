@@ -31,7 +31,6 @@ function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, 
   }, []);
   // Effect to check if the shoe is in favourites
   useEffect(() => {
-    console.log(ShoeId, "from cards")
     user.favourite.forEach(e => {
       if (e.shoeId == ShoeId) {
         setLiked(true);

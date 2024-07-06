@@ -5,6 +5,7 @@ router.post('/Register',Register);
 router.post('/Login',Login);
 router.post('/AddInCart',addInCart);
 router.post('/RemoveFromFavourite',removeFromFavourite);
+router.post('/RemoveFromCart',removeFromCart);
 router.post('/AddInFavourite',addInFavourite);
 router.post('/PaymentGateway')
 module.exports = router

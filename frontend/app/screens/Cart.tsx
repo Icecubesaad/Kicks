@@ -84,7 +84,7 @@ function Cart({ navigation }) {
           <View style={{marginTop:20}}>
             <FlatList
               data={cart}
-              keyExtractor={(item) => item.shoeId}
+              keyExtractor={(item) => item.shoe._id}
               renderItem={({ item }) => (
                 <CartItems navigation={navigation} SelectedItems={selectedItems} setSelectedItems={setselectedItems} object={item} currencyIcons={"dollar"} currency={"USA"} />
               )}
