@@ -19,10 +19,10 @@ function CartItems({
   const [price, setPrice] = useState();
 
   const AddIntoSelectedItems = (item) => {
-    const itemExists = SelectedItems.some((obj) => obj.shoeId._id === item.shoeId._id);
+    const itemExists = SelectedItems.some((obj) => obj.shoe._id === item.shoe._id);
 
     if (itemExists) {
-      const newArray = SelectedItems.filter((obj) => obj.shoeId._id !== item.shoeId._id);
+      const newArray = SelectedItems.filter((obj) => obj.shoe._id !== item.shoe._id);
       setSelectedItems(newArray);
     } else {
       const newItem = { ...item, quantity };
@@ -39,9 +39,10 @@ function CartItems({
   };
 
   useEffect(() => {
-    const selectedPrice = object.shoeId.prices.find((e) => e.currency === currency);
-    setPrice(selectedPrice ? selectedPrice.price : object.shoeId.prices[0].price);
-  }, [currency, object.shoeId.prices]);
+    console.log("from  cartItems : ",object)
+    const selectedPrice = object.shoe.prices.find((e) => e.currency === currency);
+    setPrice(selectedPrice ? selectedPrice.price : object.shoe.prices[0].price);
+  }, [currency, object.shoe.prices]);
 
   const handleSelection = () => {
     setSelected((prevSelected) => !prevSelected);
@@ -70,7 +71,7 @@ function CartItems({
       }}
     >
       <Image
-        source={{ uri: object.shoeId.image[0] }}
+        source={{ uri: object.shoe.image[0] }}
         style={{
           height: 100,
           width: 100,
@@ -88,7 +89,7 @@ function CartItems({
         }}
       >
         <Text style={{ fontFamily: "Montserrat_600SemiBold", fontSize: 16 }}>
-          {object.shoeId.name}
+          {object.shoe.name}
         </Text>
         <View style={{ display: "flex", gap: 10, flexDirection: "row" }}>
           <TouchableOpacity

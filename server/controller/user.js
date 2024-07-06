@@ -20,38 +20,38 @@ const Register = async (req, res) => {
   }
 };
 const Login = async (req, res) => {
+  // send populated version of carts
   try {
     const body = req.body;
-    const requested_account = await User.findOne({ email: body.email });
+    const requested_account = await User.findOne({ email: body.email })
+      .populate({
+        path: 'cart.shoe', // Specify the path to the shoe field inside the cart array
+        model: 'Shoe', // Specify the model to populate
+      })
+      .exec();
     if (requested_account) {
-      const compare = await bcrypt.compare(
-        body.password,
-        requested_account.password
-      );
+      const compare = await bcrypt.compare(body.password, requested_account.password);
       if (compare) {
         const token = jsonwebtoken.sign(
           { id: requested_account._id },
           process.env.SECRET
         );
         res.cookie("token", token);
-        res
-          .status(200)
-          .json({ success: true, data: requested_account, token: token });
+        res.status(200).json({ success: true, data: requested_account, token: token });
       } else {
         res.status(400).json({
-          error: "Login and Password arent correct",
+          error: "Login and Password aren't correct",
           success: false,
         });
       }
     } else {
-      res
-        .status(400)
-        .json({ error: "Login and Password arent correct", success: false });
+      res.status(400).json({ error: "Login and Password aren't correct", success: false });
     }
   } catch (error) {
-    res.status(400).json({ error: error, success: false });
+    res.status(400).json({ error: error.message, success: false });
   }
 };
+
 const getuser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -113,30 +113,35 @@ const getUserFavourite = async (req, res) => {
 };
 const addInCart = async (req, res) => {
   try {
-    const { UserId, ShoeId, Color, Size, Quantity } = req.body;
-    const object = {
-      shoeId: ShoeId,
-      color: Color,
-      size: Size,
-      quantity: Quantity,
+    const { userId, shoe, color, size, quantity } = req.body;
+    console.log(shoe)
+    const cartItem = {
+      shoe: shoe,
+      color: color,
+      size: size,
+      quantity: quantity,
     };
-    console.log(UserId, object);
-    const updated_user = await User.findOneAndUpdate(
-      { _id: UserId },
-      { $push: { cart: object } },
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { cart: cartItem } },
       { new: true }
     );
-    if (updated_user) {
-      console.log(updated_user);
-      res.status(200).json({ updated_user, success: true });
+
+    if (updatedUser) {
+      await updatedUser.populate("cart.shoe");
+      
+      res.status(200).json({ data: updatedUser.cart, success: true });
     } else {
-      console.log("nuh");
+      console.log("User not found");
       res.status(400).json({ success: false });
     }
   } catch (error) {
-    res.status(400).json({ error, success: false });
+    console.log(error);
+    res.status(500).json({ error, success: false });
   }
 };
+
 const addInFavourite = async (req, res) => {
   try {
     const { UserId, ShoeId } = req.body;

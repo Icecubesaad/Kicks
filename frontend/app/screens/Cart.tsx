@@ -14,7 +14,10 @@ import { Montserrat_600SemiBold } from "@expo-google-fonts/montserrat";
 import colors from "../constants/colors";
 import CartItems from "../components/CartItems";
 import { useIsFocused } from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 function Cart({ navigation }) {
+  const user = useSelector((state: RootState) => state.user)
   const [cart, setcart] = useState([]);
   const [loading, setloading] = useState(false);
   const [error, seterror] = useState(false);
@@ -23,7 +26,6 @@ function Cart({ navigation }) {
   const [skip, setskip] = useState(0);
   const [canFetch, setcanFetch] = useState(true);
   const [selectedItems, setselectedItems] = useState([]);
-  const isFocused = useIsFocused();
 
   const fetchUserCart = async () => {
     try {
@@ -60,12 +62,10 @@ function Cart({ navigation }) {
   if (!fontsLoaded || loading) {
     return <Text>Loading...</Text>;
   }
-
   useEffect(() => {
-    if(isFocused){
-      fetchUserCart();
-    }
-  }, []);
+    console.log(user.cart)
+    setcart(user.cart)
+  }, [user]);
   return (
     <View>
         <View style={{ paddingLeft: 20,marginTop:40 }}>
@@ -84,12 +84,10 @@ function Cart({ navigation }) {
           <View style={{marginTop:20}}>
             <FlatList
               data={cart}
-              keyExtractor={(item) => item._id}
+              keyExtractor={(item) => item.shoeId}
               renderItem={({ item }) => (
                 <CartItems navigation={navigation} SelectedItems={selectedItems} setSelectedItems={setselectedItems} object={item} currencyIcons={"dollar"} currency={"USA"} />
               )}
-              onEndReached={fetchUserCart}
-              onEndReachedThreshold={0.1}
             />
           </View>
         )}

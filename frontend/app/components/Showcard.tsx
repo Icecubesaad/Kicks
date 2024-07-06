@@ -9,22 +9,35 @@ import {
   Montserrat_400Regular,
   Montserrat_600SemiBold,
 } from "@expo-google-fonts/montserrat";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store/store";
 
 function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, ShoeId, navigation,user }) {
-  const [prices, setPrices] = useState(price[0]?.price || null);
+  const [prices, setPrices] = useState(null);
   const [liked, setLiked] = useState(false);
   const [fontsLoaded] = useFonts({
     Montserrat_400Regular,
     Montserrat_600SemiBold,
   });
-
+  useEffect(() => {
+    if(currency == "Other"){
+      setPrices(price[0].price)
+    }
+    else{
+      price.map(e=>{
+        if(e.currency === currency){
+          setPrices(e.price)
+        }
+      })
+    }
+  }, []);
   // Effect to check if the shoe is in favourites
   useEffect(() => {
+    console.log(ShoeId, "from cards")
     user.favourite.forEach(e => {
       if (e.shoeId == ShoeId) {
         setLiked(true);
+      }
+      else{
+        setLiked(false)
       }
     });
   }, [user]);
@@ -32,7 +45,6 @@ function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, 
   if (!fontsLoaded) {
     return null; // Fonts are still loading
   }
-
   return (
     <TouchableOpacity
       onPress={() => {
@@ -45,7 +57,7 @@ function Showcard({ name, rating, sizes, price, image, currencyIcons, currency, 
           currencyIcons,
           currency,
           sizes,
-          prices,
+          prices:price,
           UserId : user.id,
           Favourite: user.favourite,
         });

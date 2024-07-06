@@ -20,7 +20,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch } from "react-redux";
-import { addNewFavouriteReducer, removeFromFavouriteReducer,updateFavouriteReducer } from "../../reducer/user/userSlice";
+import { addNewFavouriteReducer, removeFromFavouriteReducer,updateFavouriteReducer,addNewCartReducer,removeFromCartReducer } from "../../reducer/user/userSlice";
 function SingleShoe({ route, navigation }) {
   const dispatch = useDispatch()
   const [selectedColor, setSelectedColor] = useState(null);
@@ -33,6 +33,7 @@ function SingleShoe({ route, navigation }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [liked, setliked] = useState(false);
+  const [price, setprice] = useState(null);
   let {
     name,
     sizes,
@@ -43,6 +44,7 @@ function SingleShoe({ route, navigation }) {
     ShoeId,
     prices,
     currencyIcons,
+    currency,
     UserId,
     Favourite
   } = route.params;
@@ -65,8 +67,18 @@ function SingleShoe({ route, navigation }) {
       console.error(error);
     }
   };
-
   useEffect(() => {
+    console.log(currency,prices)
+    if(currency == "Other"){
+      setprice(prices[0].price)
+    }
+    else{
+      prices.map(e=>{
+        if(e.currency === currency){
+          setprice(e.price)
+        }
+      })
+    }
     if (!name) {
       fetchSingleShoes();
     }
@@ -90,31 +102,36 @@ function SingleShoe({ route, navigation }) {
   const renderStarIcon = (id) =>
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
   useEffect(() => {
+    console.log(ShoeId)
     Favourite.map(e=>{
       if(e.shoeId == ShoeId){
         setliked(true)
+      }
+      else{
+        setliked(false)
       }
     })
   }, []);
   const addToCart = async () => {
     try {
       setLoading(true);
+      const object = {
+        shoe: ShoeId,
+        userId: UserId,
+        color:
+          selectedColor == 1
+            ? "red"
+            : selectedColor == 2
+            ? "black"
+            : "blue",
+        size: selectedSize,
+        quantity: 1,
+      }
       const request = await fetch(
         `http://192.168.0.104:5000/api/post/AddInCart/`,
         {
           method: "POST",
-          body: JSON.stringify({
-            ShoeId: ShoeId,
-            UserId: "666d6bcd07457dc76de8b29c",
-            Color:
-              selectedColor == 1
-                ? "red"
-                : selectedColor == 2
-                ? "black"
-                : "blue",
-            Size: selectedSize,
-            Quantity: 1,
-          }),
+          body: JSON.stringify(object),
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -126,6 +143,18 @@ function SingleShoe({ route, navigation }) {
         setSuccess(true);
         setLoading(false);
         setError(false);
+        dispatch(addNewCartReducer({
+          shoe:{
+            _id : ShoeId,
+            name:name,
+            prices:prices,
+            image:image
+          }
+          ,
+          color : selectedColor,
+          quantity:1,
+          size:selectedSize
+        }))
       } else {
         setError(true);
         setLoading(false);
@@ -167,14 +196,14 @@ function SingleShoe({ route, navigation }) {
       const response = await request.json();
       if (response.success) {
         setSuccess(true);
-        setliked(true);
-        dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
+        // dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
       } else {
         setliked(false);
-        setliked(true);
+        setError(true)
       }
     } catch (error) {
       setError(false);
+      setliked(false)
     }
   };
   const removeFromFavourite=async()=>{
@@ -191,17 +220,26 @@ function SingleShoe({ route, navigation }) {
     const response = await request.json();
       if (response.success) {
         setSuccess(true);
-        setliked(true);
-        dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
+        // dispatch(updateFavouriteReducer(response))  // updating the favourite list with the new favourite list
       } else {
-        setliked(false);
-        setliked(true);
+        setError(true)
       }
     } catch (error) {
-      setError(false);
+      setError(true);
     }
   }
-
+  useEffect(() => {
+    if(error){
+      setTimeout(() => {
+        setError(false)
+      }, 3000);
+    }
+    if(success){
+      setTimeout(() => {
+        setSuccess(false)
+      }, 3000);
+    }
+  }, [success,error]);
   return (
     <View style={styles.container}>
       {success ? (
@@ -268,11 +306,11 @@ function SingleShoe({ route, navigation }) {
             }}
           >
             {liked ? (
-              <TouchableOpacity onPress={()=>{removeFromFavourite(),dispatch(removeFromFavouriteReducer(ShoeId))}}>
+              <TouchableOpacity onPress={()=>{removeFromFavourite(),dispatch(removeFromFavouriteReducer({shoeId:ShoeId}))}}>
                 <Feather name="heart" color="red" size={30} />
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={()=>{addInUserFavourite(),dispatch(addNewFavouriteReducer(ShoeId))}}>
+              <TouchableOpacity onPress={()=>{addInUserFavourite(),dispatch(addNewFavouriteReducer({shoeId:ShoeId}))}}>
                 <Feather name="heart" color="black" size={30} />
               </TouchableOpacity>
             )}
@@ -356,7 +394,7 @@ function SingleShoe({ route, navigation }) {
         </ScrollView>
         <View style={styles.priceContainer}>
           <Text style={styles.priceText}>
-            Price : {prices}{" "}
+            Price : {price}{" "}
             <FontAwesome name={currencyIcons} size={16} color="black" />
           </Text>
         </View>

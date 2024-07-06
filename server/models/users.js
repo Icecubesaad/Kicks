@@ -33,7 +33,7 @@ const usersSchema = new Schema({
   ],
   cart: [
     {
-      shoeId: {
+      shoe: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Shoe",
         required: true,
