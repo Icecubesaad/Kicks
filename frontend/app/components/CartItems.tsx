@@ -59,7 +59,7 @@ function CartItems({
   const removeFromCart = async () => {
     try {
       const request = await fetch(
-        "http://192.168.0.104:5000/api/post/RemoveFromCart",
+        "http://192.168.0.106:5000/api/post/RemoveFromCart",
         {
           method: "POST",
           headers: {

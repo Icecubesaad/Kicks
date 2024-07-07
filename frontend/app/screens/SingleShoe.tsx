@@ -49,11 +49,11 @@ function SingleShoe({ route, navigation }) {
     UserId,
     Favourite
   } = route.params;
-
   const fetchSingleShoes = async () => {
+    setLoading(true)
     try {
       const request = await fetch(
-        `http://192.168.0.104:5000/api/get/getShoeById/${ShoeId}`
+        `http://192.168.0.106:5000/api/get/getShoeById/${ShoeId}`
       );
       const response = await request.json();
       if (response.success) {
@@ -69,20 +69,10 @@ function SingleShoe({ route, navigation }) {
     }
   };
   useEffect(() => {
-    console.log(currency,prices)
-    if(currency == "Other"){
-      setprice(prices[0].price)
-    }
-    else{
-      prices.map(e=>{
-        if(e.currency === currency){
-          setprice(e.price)
-        }
-      })
-    }
-    if (!name) {
-      fetchSingleShoes();
-    }
+    const selectedPrice = prices.find(
+      (e) => e.currency === currency
+    );
+    setprice(selectedPrice ? selectedPrice.price : prices[0].price);
     const regionSizes = sizes.filter((size) => size.country === "USA")[0];
     setAvailableSizes(regionSizes.availableSizes);
   }, [sizes]);
@@ -104,7 +94,7 @@ function SingleShoe({ route, navigation }) {
     selectedColor === id && <AntDesign name="star" color="yellow" size={20} />;
   useEffect(() => {
     Favourite.map(e=>{
-      if(e._id == ShoeId){
+      if(e.shoeId._id == ShoeId){
         setliked(true)
       }
       else{
@@ -128,7 +118,7 @@ function SingleShoe({ route, navigation }) {
         quantity: 1,
       }
       const request = await fetch(
-        `http://192.168.0.104:5000/api/post/AddInCart/`,
+        `http://192.168.0.106:5000/api/post/AddInCart/`,
         {
           method: "POST",
           body: JSON.stringify(object),
@@ -183,7 +173,7 @@ function SingleShoe({ route, navigation }) {
     try {
       setliked(true)
       const request = await fetch(
-        "http://192.168.0.104:5000/api/post/AddInFavourite",
+        "http://192.168.0.106:5000/api/post/AddInFavourite",
         {
           method: "POST",
           headers: {
@@ -209,7 +199,7 @@ function SingleShoe({ route, navigation }) {
   const removeFromFavourite=async()=>{
     try{
     setliked(false)
-    const request = await fetch("http://192.168.0.104:5000/api/post/RemoveFromFavourite",{
+    const request = await fetch("http://192.168.0.106:5000/api/post/RemoveFromFavourite",{
       method:"POST",
       headers: {
         Accept: "application/json",

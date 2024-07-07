@@ -31,7 +31,6 @@ const Login = async (req, res) => {
       .populate({
         path: "favourite.shoeId",
         model: "Shoe",
-        select: "name image prices _id", // Specify the fields you want
       })
       .exec();
     if (requested_account) {

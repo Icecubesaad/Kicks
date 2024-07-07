@@ -29,7 +29,7 @@ function LikeCard({
   const removeFromCart = async () => {
     try {
       const request = await fetch(
-        "http://192.168.0.104:5000/api/post/RemoveFromFavourite",
+        "http://192.168.0.106:5000/api/post/RemoveFromFavourite",
         {
           method: "POST",
           headers: {
@@ -58,7 +58,6 @@ function LikeCard({
     }
   };
   useEffect(() => {
-    console.log(object,"like items")
     if (object.shoeId.name) {
       setname(object.shoeId.name.substring(0, 15));
     }
@@ -84,9 +83,19 @@ function LikeCard({
       }}
     >
       <TouchableOpacity
-        onPress={()=>navigation.navigate("single",{
-          ShoeId:object.shoeId._id
-        })}
+        onPress={()=>{navigation.navigate("single",{
+          ShoeId:object.shoeId._id,
+          name:object.shoeId.name,
+          rating:5,
+          image:object.shoeId.image,
+          reviews: 17,
+          currencyIcons,
+          currency,
+          sizes:object.shoeId.sizes,
+          prices:object.shoeId.prices,
+          UserId : user.id,
+          Favourite: user.favourite,
+        }),console.log(object)}}
         style={{
           display: "flex",
           flexDirection: "row",

@@ -23,7 +23,7 @@ export const fetchShoesByCompany = company => {
     return async dispatch => {
       dispatch(fetchShoesRequest());
       try {
-        const response = await fetch(`http://192.168.0.104:5000/api/get/getShoesByCompany/${company}`, {
+        const response = await fetch(`http://192.168.0.106:5000/api/get/getShoesByCompany/${company}`, {
           method: 'GET',
         });
         const data = await response.json();
