@@ -29,7 +29,7 @@ function LikeCard({
   const removeFromCart = async () => {
     try {
       const request = await fetch(
-        "http://192.168.0.106:5000/api/post/RemoveFromFavourite",
+        "http://192.168.0.108:5000/api/post/RemoveFromFavourite",
         {
           method: "POST",
           headers: {

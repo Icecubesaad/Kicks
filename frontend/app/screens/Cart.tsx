@@ -31,7 +31,7 @@ function Cart({ navigation }) {
     try {
       if(canFetch){
         const request = await fetch(
-          `http://192.168.0.106:5000/api/get/getUserCart/${"666d6bcd07457dc76de8b29c"}?limit=${limit}&skip=${skip}`,
+          `http://192.168.0.108:5000/api/get/getUserCart/${"666d6bcd07457dc76de8b29c"}?limit=${limit}&skip=${skip}`,
           {
             method: "GET",
           }

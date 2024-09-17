@@ -34,7 +34,7 @@ function Login({ navigation }) {
 
   const LoginFunc = async () => {
     try {
-      const request = await fetch("http://192.168.0.106:5000/api/post/Login", {
+      const request = await fetch("http://192.168.0.108:5000/api/post/Login", {
         method: "POST",
         headers: {
           Accept: "application/json",

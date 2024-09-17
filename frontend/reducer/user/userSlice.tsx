@@ -45,7 +45,7 @@ export const fetchUser = createAsyncThunk(
     const state = getState() as RootState;
     const token = state.user.token;
 
-    const response = await fetch("http://192.168.0.106:5000/api/get/getUser", {
+    const response = await fetch("http://192.168.0.108:5000/api/get/getUser", {
       method: "GET",
       headers: {
         token: token,

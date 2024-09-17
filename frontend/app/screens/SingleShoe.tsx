@@ -53,7 +53,7 @@ function SingleShoe({ route, navigation }) {
     setLoading(true)
     try {
       const request = await fetch(
-        `http://192.168.0.106:5000/api/get/getShoeById/${ShoeId}`
+        `http://192.168.0.108:5000/api/get/getShoeById/${ShoeId}`
       );
       const response = await request.json();
       if (response.success) {
@@ -118,7 +118,7 @@ function SingleShoe({ route, navigation }) {
         quantity: 1,
       }
       const request = await fetch(
-        `http://192.168.0.106:5000/api/post/AddInCart/`,
+        `http://192.168.0.108:5000/api/post/AddInCart/`,
         {
           method: "POST",
           body: JSON.stringify(object),
@@ -173,7 +173,7 @@ function SingleShoe({ route, navigation }) {
     try {
       setliked(true)
       const request = await fetch(
-        "http://192.168.0.106:5000/api/post/AddInFavourite",
+        "http://192.168.0.108:5000/api/post/AddInFavourite",
         {
           method: "POST",
           headers: {
@@ -199,7 +199,7 @@ function SingleShoe({ route, navigation }) {
   const removeFromFavourite=async()=>{
     try{
     setliked(false)
-    const request = await fetch("http://192.168.0.106:5000/api/post/RemoveFromFavourite",{
+    const request = await fetch("http://192.168.0.108:5000/api/post/RemoveFromFavourite",{
       method:"POST",
       headers: {
         Accept: "application/json",

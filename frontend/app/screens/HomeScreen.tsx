@@ -38,7 +38,7 @@ function HomeScreen({ navigation }) {
     if (canFetch) {
       try {
         const request = await fetch(
-          `http://192.168.0.106:5000/api/get/getShoesByCompany/${company}?skip=${skip}&limit=${limit}`,
+          `http://192.168.0.108:5000/api/get/getShoesByCompany/${company}?skip=${skip}&limit=${limit}`,
           {
             method: "GET",
           }
